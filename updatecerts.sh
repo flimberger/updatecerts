@@ -21,11 +21,12 @@ umask 0022
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 
 # configuration
-certs_dest_dir=/usr/local/etc/ssl
-certs_src_dir=/data/ssl
+destdir=/usr/local/etc/ssl
+srcdir=/data/ssl
 services="dovecot nginx postfix"
 
-_logger="/usr/bin/logger -t updatecerts"
+logger="/usr/bin/logger -t updatecerts"
+sudo=/usr/local/bin/sudo
 
 restart_required=false
 
@@ -33,34 +34,42 @@ safecopy()
 {
 	src="$1"
 	dest="$2"
-	cp -a "$src" "$dest.new"
-	mv "$dest.new" "$dest"
+	$sudo cp -a "$src" "$dest.tmp"
+	$sudo mv "$dest.tmp" "$dest"
 }
 
-$_logger starting
+$logger starting
 
-for src in "$certs_src_dir"/*; do
+for src in "$srcdir"/*; do
+	if [ ! -f "$src" ]; then
+		$logger "no regular file: $src"
+		continue
+	fi
+	case "$src" in
+	*.cer) ;;
+	*)
+		$logger "skipping "$src" which is not a .cer file"
+		continue
+		;;
+	esac
 	cert="$(basename "$src")"
-	targ="$certs_dest_dir/$cert"
+	targ="$destdir/$cert"
 	if [ -f "$targ" ]; then
 		diff="$(diff "$src" "$targ")"
-		if [ "${diff}x" != x ]; then
-			$_logger updating cert "$targ"
-			safecopy "$src" "$targ"
-			restart_required=true
+		if [ "${diff}x" = x ]; then
+			continue
 		fi
-	else
-		$_logger installing new cert "$targ"
-		safecopy "$src" "$targ"
-		restart_required=true
 	fi
+	$logger installing new cert "$targ"
+	safecopy "$src" "$targ"
+	restart_required=true
 done
 
 if [ "$restart_required" = true ]; then
 	for svc in $services; do
 		if [ -f "/usr/local/etc/rc.d/$svc" ]; then
-			$_logger restarting service "$svc"
-			service "$svc" restart
+			$logger restarting service "$svc"
+			$sudo service "$svc" restart
 		fi
 	done
 fi

@@ -1,0 +1,5 @@
+certmgr	ALL= NOPASSWD:/usr/sbin/service dovecot restart
+certmgr	ALL= NOPASSWD:/usr/sbin/service nginx restart
+certmgr	ALL= NOPASSWD:/usr/sbin/service postfix restart
+certmgr ALL= NOPASSWD:/bin/cp -a /data/ssl/*.cer /usr/local/etc/ssl/*.cer.tmp
+certmgr ALL= NOPASSWD:/bin/mv /usr/local/*.cer.tmp /usr/local/etc/ssl/*.cer
