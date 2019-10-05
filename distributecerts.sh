@@ -58,7 +58,7 @@ for dir in "$srcdir"/*; do
 	name="$(printf %s\\n "$domain" | sed 's/^\*\.//')"
 
 	# Skip staging certicates
-	if grep '^LeAPI.*staging' "$dir/${domain}.conf"; then
+	if grep '^Le_API.*staging' "$dir/${domain}.conf"; then
 		$logger "skipping staging cert for $domain"
 		continue
 	fi
