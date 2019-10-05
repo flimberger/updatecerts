@@ -1,0 +1,2 @@
+acme ALL= NOPASSWD:/bin/cp -a /var/db/acme/certs/**/*.cer /data/ssl/*.cer
+acme ALL= NOPASSWD:/bin/cp -a /tmp/*.cer /data/ssl/*.cer
