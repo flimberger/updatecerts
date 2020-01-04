@@ -38,7 +38,9 @@ certs_dir=/var/db/acme/certs
 target_jail_root="/zroot/iocage/jails/$jail/root"
 ssl_dir=/usr/local/ssl
 
-if [ -d "$target_jail_root/$ssl_dir"]; then
+if [ ! -d "$target_jail_root/$ssl_dir"]; then
 	mkdir -p "$target_jail_root/$ssl_dir"
 fi
-cp "$certs_jail_root/$certs_dir/$domain/$domain.key" "$target_jail_root/$ssl_dir/$domain.key"
+
+cp "$certs_jail_root/$certs_dir/*.$domain/*.$domain.key" \
+    "$target_jail_root/$ssl_dir/$domain.key"
