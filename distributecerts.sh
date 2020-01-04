@@ -35,17 +35,21 @@ copymod()
 	dest="$2"
 
 	if [ -f "$dest" ]; then
-		diff="$(diff "$src" "$dest")"
-		if [ "${diff}x" = x ]; then
-			exit
+		if diff "$src" "$dest" >/dev/null; then
+			$logger "skip $src -> $dest"
+			return
 		fi
-	else
-		$logger "copy $src -> $dest"
-		$sudo cp -a "$src" "$dest"
 	fi
+	$logger "copy $src -> $dest"
+	$sudo cp -a "$src" "$dest"
 }
 
-for dir in "$srcdir"/*; do
+certs=$(ls "$srcdir")
+$logger "available certs: $certs"
+for cert in $certs; do
+	dir="$srcdir/$cert"
+	$logger "processing $dir"
+
 	if [ ! -d "$dir" ]; then
 		$logger "fatal $dir missing"
 		exit 1
@@ -58,11 +62,12 @@ for dir in "$srcdir"/*; do
 	name="$(printf %s\\n "$domain" | sed 's/^\*\.//')"
 
 	# Skip staging certicates
-	if grep '^Le_API.*staging' "$dir/${domain}.conf"; then
+	if grep '^Le_API.*staging' "$dir/${domain}.conf" >/dev/null; then
 		$logger "skipping staging cert for $domain"
 		continue
 	fi
 
+	$logger "copying certs for $domain"
 	copymod "$dir/ca.cer" "$destdir/${name}.ca.cer"
 	copymod "$dir/${domain}.cer" "$destdir/${name}.cer"
 	copymod "$dir/fullchain.cer" "$destdir/${name}.fullchain.cer"
