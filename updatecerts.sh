@@ -55,8 +55,7 @@ for src in "$srcdir"/*; do
 	cert="$(basename "$src")"
 	targ="$destdir/$cert"
 	if [ -f "$targ" ]; then
-		diff="$(diff "$src" "$targ")"
-		if [ "${diff}x" = x ]; then
+		if diff "$src" "$targ" >/dev/null; then
 			continue
 		fi
 	fi
