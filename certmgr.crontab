@@ -1,0 +1,2 @@
+# minute	hour	mday	month	wday	command
+30	10	*	*	*	/usr/local/bin/updatecerts.sh

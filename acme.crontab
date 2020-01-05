@@ -1,0 +1,2 @@
+# minute	hour	mday	month	wday	command
+30	9	*	*	*	/usr/local/bin/acmecron.sh
